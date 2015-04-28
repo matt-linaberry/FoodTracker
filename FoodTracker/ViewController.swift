@@ -17,7 +17,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var jsonResponse:NSDictionary!
     var apiSearchForFoods:[(name:String, idValue:String)] = []
-    
+    var dataController:DataController = DataController()
     let kAppID = "01437f95"
     let kAppKey = "07a9d73c587af46d55537259f2877376"
     @IBOutlet weak var tableView: UITableView!
@@ -101,7 +101,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             makeRequest(searchFoodName)
         }
         else if selectedScopeButtonIndex == 1 {
-            
+            let idValue = apiSearchForFoods[indexPath.row].idValue
+            self.dataController.saveUSDAItemForId(idValue, json: self.jsonResponse)
         }
         else if selectedScopeButtonIndex == 2 {
             
