@@ -37,7 +37,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.searchController.searchBar.delegate = self
         self.definesPresentationContext = true // search results controller will be displayed in the current view controller.
         self.suggestedSearchFoods = ["apple", "bagel", "banana", "beer", "bread", "carrots", "cheddar cheese", "chicken breast", "chili with beans", "chocolate chip cookie", "coffee", "cola", "corn", "egg", "graham cracker", "granola bar", "green beans", "ground beef patty", "hot dog", "ice cream", "jelly doughnut", "ketchup", "milk", "mixed nuts", "mustard", "oatmeal", "orange juice", "peanut butter", "pizza", "pork chop", "potato", "potato chips", "pretzels", "raisins", "ranch salad dressing", "red wine", "rice", "salsa", "shrimp", "spaghetti", "spaghetti sauce", "tuna", "white wine", "yellow cake"]
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "usdaItemDidComplete:", name: kUSDAItemCompleted, object: nil)
     }
+    
+    
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)  // need to remove the observer when we don't need it anymore!
+    }
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "toDetailVCSegue" {
             if sender != nil {
@@ -212,7 +220,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 //            println(stringData)
             var conversionError:NSError?
             var jsonDictionary = NSJSONSerialization.JSONObjectWithData(data, options: .MutableLeaves, error: &conversionError) as? NSDictionary
-            println(jsonDictionary)
+            //println(jsonDictionary)
             // what if theres a problem???
             if conversionError != nil {
                 println(conversionError!.localizedDescription)
@@ -246,6 +254,16 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let managedObjectContext = appDelegate.managedObjectContext
         self.favoritedUSDAItems = managedObjectContext?.executeFetchRequest(fetchRequest, error: nil) as! [USDAItem]
         
+    }
+    
+    //MARK: NSNotificationCenter funcs
+    func usdaItemDidComplete(notification: NSNotification) {
+        println("USDAIItemDidComplete in ViewController!!!")
+        requestFavoritedUSDAItems()
+        let selectedScopeButtonIndex = self.searchController.searchBar.selectedScopeButtonIndex
+        if selectedScopeButtonIndex == 2 {
+            self.tableView.reloadData()
+        }
     }
 }
 
